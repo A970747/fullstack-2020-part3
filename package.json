@@ -1,0 +1,23 @@
+{
+  "name": "fso-nodejs",
+  "version": "1.0.0",
+  "description": "Initial NodeJS Server",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node_modules/.bin/nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/A970747/FSO-NodeJS.git"
+  },
+  "author": "Matt Jackson",
+  "homepage": "https://github.com/A970747/FSO-NodeJS#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.6"
+  }
+}
