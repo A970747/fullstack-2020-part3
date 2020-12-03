@@ -60,9 +60,21 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons',(req, res) => {
   const record = req.body;
-  let id = Math.max(...persons.map(record => parseInt(record.id))) + 1;
-  persons = persons.concat({id, ...record})
-  res.json(record);
+
+  switch(true) {
+    case persons.map(record => 
+      record.name.toLowerCase()).includes(record.name.toLowerCase()):
+      res.status(400).send({error: 'name must be unique'})
+      break;
+    case (persons.map(record => 
+      record.number).includes(record.number)):
+      res.status(400).send({ error: 'number must be unique'})
+      break;
+    default:
+      let id = Math.max(...persons.map(record => parseInt(record.id))) + 1;
+      persons = persons.concat({id, ...record})
+      res.json(record);
+  }
 })
 
 const PORT = 3002;
