@@ -1,5 +1,8 @@
+const { response } = require('express');
 const express = require('express');
 const app = express();
+
+app.use(express.json());
 
 let persons = [
   {
@@ -26,7 +29,6 @@ let persons = [
 
 app.get('/api',(request,response) => {
   response.send('Hey! This is the root. Welcome.');
-  console.log('testerino')
 })
 
 app.get('/api/persons',(request,response) => {
@@ -46,7 +48,7 @@ app.get('/api/persons/:id',(request,response) => {
   if(record){
     response.json(record);
   } else {
-    response.status(404).end()
+    response.status(404).end();
   }
 })
 
@@ -55,6 +57,13 @@ app.delete('/api/persons/:id', (req, res) => {
   persons = persons.filter(record => record.id !== id);
   res.status(204).end();
 });
+
+app.post('/api/persons',(req, res) => {
+  const record = req.body;
+  let id = Math.max(...persons.map(record => parseInt(record.id))) + 1;
+  persons = persons.concat({id, ...record})
+  res.json(record);
+})
 
 const PORT = 3002;
 app.listen(PORT);
