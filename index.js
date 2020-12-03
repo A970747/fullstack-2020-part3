@@ -26,6 +26,7 @@ let persons = [
 
 app.get('/api',(request,response) => {
   response.send('Hey! This is the root. Welcome.');
+  console.log('testerino')
 })
 
 app.get('/api/persons',(request,response) => {
@@ -36,8 +37,17 @@ app.get('/api/info',(request,response) => {
   response.send(
     `<p>This phone has info for ${persons.length} people.</p>
     <p>${new Date()}</p>`
-
   );
+})
+
+app.get('/api/persons/:id',(request,response) => {
+  const id = parseInt(request.params.id);
+  const record = persons.find(record => record.id === id)
+  if(record){
+    response.json(record);
+  } else {
+    response.status(404).end()
+  }
 })
 
 const PORT = 3002;
