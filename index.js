@@ -28,7 +28,9 @@ let persons = [
   }
 ]
 
-app.use(morgan('tiny'));
+morgan.token('postBody', (req, res) => JSON.stringify(req.body))
+
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :postBody'));
 
 const unknownEndpoint = (req,res) => {
   res.status(404).send({error: 'unknown endpoint'})
@@ -67,6 +69,7 @@ app.delete('/api/persons/:id', (req, res) => {
 
 app.post('/api/persons',(req, res) => {
   const record = req.body;
+  console.log(record);
 
   switch(true) {
     case persons.map(record => 
