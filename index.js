@@ -1,6 +1,7 @@
-const { response } = require('express');
+const { res, response } = require('express');
 const express = require('express');
 const app = express();
+const morgan = require('morgan');
 
 app.use(express.json());
 
@@ -27,28 +28,34 @@ let persons = [
   }
 ]
 
-app.get('/api',(request,response) => {
-  response.send('Hey! This is the root. Welcome.');
+app.use(morgan('tiny'));
+
+const unknownEndpoint = (req,res) => {
+  res.status(404).send({error: 'unknown endpoint'})
+}
+
+app.get('/api',(req,res) => {
+  res.send('Hey! This is the root. Welcome.');
 })
 
-app.get('/api/persons',(request,response) => {
-  response.json(persons);
+app.get('/api/persons',(req,res) => {
+  res.json(persons);
 })
 
-app.get('/api/info',(request,response) => {
-  response.send(
+app.get('/api/info',(req,res) => {
+  res.send(
     `<p>This phone has info for ${persons.length} people.</p>
     <p>${new Date()}</p>`
   );
 })
 
-app.get('/api/persons/:id',(request,response) => {
-  const id = parseInt(request.params.id);
+app.get('/api/persons/:id',(req,res) => {
+  const id = parseInt(req.params.id);
   const record = persons.find(record => record.id === id)
   if(record){
-    response.json(record);
+    res.json(record);
   } else {
-    response.status(404).end();
+    res.status(404).end();
   }
 })
 
@@ -76,6 +83,8 @@ app.post('/api/persons',(req, res) => {
       res.json(record);
   }
 })
+
+app.use(unknownEndpoint);
 
 const PORT = 3002;
 app.listen(PORT);
