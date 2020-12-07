@@ -1,4 +1,4 @@
-const { res, res } = require('express');
+const { req, res } = require('express');
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
