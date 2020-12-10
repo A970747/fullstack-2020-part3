@@ -1,4 +1,4 @@
-const { req, res } = require('express');
+const { req, res} = require('express');
 const express = require('express');
 const app = express();
 const morgan = require('morgan');
@@ -89,6 +89,17 @@ app.post('/api/persons',(req, res) => {
       res.json(record);
   }
 })
+
+app.get('/times', (req, res) => res.send(showTimes()))
+
+showTimes = () => {
+  let result = '';
+  const times = process.env.TIMES || 5;
+  for (i = 0; i < times; i++) {
+    result += i + ' ';
+  }
+  return result;
+}
 
 app.use(unknownEndpoint);
 
