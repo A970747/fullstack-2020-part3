@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
 
-if (process.argv.length < 3) {
+const password = process.argv[2];
+const nodeArgs = process.argv.length;
+
+if (nodeArgs < 3) {
   console.log('Please provide the password as an argument: node mongo.js <password>');
   process.exit(1);
 }
-
-const password = process.argv[2];
 
 const url = 
   `mongodb+srv://fullstack:${password}@cluster0.8ob9a.mongodb.net/note-app?retryWrites=true&w=majority`
@@ -16,9 +17,8 @@ const url =
       useUnifiedTopology: true,
       useFindAndModify: false, 
       useCreateIndex: true 
-    }
-  ).then(() => console.log('connected successfully'))
-  .catch(() => console.log('no dice big momma'))
+    }).then(() => console.log('connected successfully'))
+      .catch(() => console.log('no dice big momma'))
 
   const recordSchema = new mongoose.Schema({
     _id: Number,
@@ -28,15 +28,33 @@ const url =
   
   const Record = mongoose.model('Record', recordSchema)
   
-  const record = new Record({
-    content: 'HTML is Easy',
-    date: new Date(),
-    important: true,
-  })
-  
-/*   Record.find({}).then(result => {
-    result.forEach(note => {
-      console.log(note);
+switch(true) {
+  case (nodeArgs === 5):
+    Record.find({})
+    .then(records => {
+      let id = Math.max(...records.map(records => parseInt(records._id))) + 1;
+      let record = new Record({
+        _id: id,
+        name: process.argv[3],
+        number: process.argv[4]
+      })
+      record.save().then(() => {
+        console.log(`Added ${record.name} number ${record.number} to phonebook.`);
+        mongoose.connection.close();
+      })
+      
     })
+    break;
+  case (nodeArgs === 3):
+    Record.find({})
+      .then(records => {
+        console.log('phonebook:');
+        records.forEach( record => console.log(`${record.name} ${record.number}`))
+        mongoose.connection.close();
+      });
+    break;
+  default:
+    console.log('Incorrect number of arguments provided in Node statement - Make sure any arguments with spaces are wrapped in quotations.')
     mongoose.connection.close();
-  }) */
+    break;
+}
