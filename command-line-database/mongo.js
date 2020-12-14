@@ -11,22 +11,22 @@ if (nodeArgs < 3) {
 const url = 
   `mongodb+srv://fullstack:${password}@cluster0.8ob9a.mongodb.net/note-app?retryWrites=true&w=majority`
 
-  mongoose.connect(url, 
-    { 
-      useNewUrlParser: true, 
-      useUnifiedTopology: true,
-      useFindAndModify: false, 
-      useCreateIndex: true 
-    }).then(() => console.log('connected successfully'))
-      .catch(() => console.log('no dice big momma'))
+mongoose.connect(url, 
+  { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true,
+    useFindAndModify: false, 
+    useCreateIndex: true 
+  }).then(() => console.log('connected successfully'))
+    .catch(() => console.log('no dice big momma'))
 
-  const recordSchema = new mongoose.Schema({
+const recordSchema = new mongoose.Schema({
     _id: Number,
     name: String,
     number: String
   })
   
-  const Record = mongoose.model('Record', recordSchema)
+const Record = mongoose.model('Record', recordSchema)
   
 switch(true) {
   case (nodeArgs === 5):
@@ -42,7 +42,6 @@ switch(true) {
         console.log(`Added ${record.name} number ${record.number} to phonebook.`);
         mongoose.connection.close();
       })
-      
     })
     break;
   case (nodeArgs === 3):

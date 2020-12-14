@@ -1,35 +1,16 @@
-const { req, res} = require('express');
+require('dotenv').config();
+const Record = require('./models/record');
+
+const { req, res, response} = require('express');
 const express = require('express');
-const app = express();
 const morgan = require('morgan');
 const cors = require('cors');
-const PORT = process.env.PORT || 3001
+const PORT = process.env.PORT
+const app = express();
+
 
 app.use(express.json());
 app.use(cors());
-
-let persons = [
-  {
-    id: 1,
-    name: 'Arto Hellos',
-    number: '040-123456'
-  },
-  {
-    id: 2,
-    name: 'Ada Lovelace',
-    number: '39-44-532523'
-  },
-  {
-    id: 3,
-    name: 'Dan Abramov',
-    number: '12-43-234345'
-  },
-  {
-    id: 4,
-    name: 'Mary Poppendick',
-    number: '39-23-6423122'
-  }
-]
 
 morgan.token('postBody', (req, res) => JSON.stringify(req.body))
 
@@ -44,52 +25,56 @@ app.get('/api',(req,res) => {
   res.send('Hey! This is the root. Welcome.');
 })
 
-app.get('/api/persons',(req,res) => {
-  res.json(persons);
-})
+app.get('/api/record',(req,res) => {
+  const body = req.body;
 
-app.get('/api/info',(req,res) => {
-  res.send(
-    `<p>This phone has info for ${persons.length} people.</p>
-    <p>${new Date()}</p>`
-  );
-})
-
-app.get('/api/persons/:id',(req,res) => {
-  const id = parseInt(req.params.id);
-  const record = persons.find(record => record.id === id)
-  if(record){
-    res.json(record);
-  } else {
-    res.status(404).end();
+  if(!body.name || !body.number) {
+    return res.status(400).json({Error: 'Name or Number missing'});
   }
+
+  const record = new Record({
+    name: body.name,
+    number: body.number
+  })
+
+  record.save().then( savedRecord =>{
+    res.json(savedRecord);
+  })
 })
 
-app.delete('/api/persons/:id', (req, res) => {
+app.get('/api/record/:id',(req,res) => {
   const id = parseInt(req.params.id);
-  persons = persons.filter(record => record.id !== id);
+
+  Record.findById(id).then( record => {
+    res.json(record);
+  })
+})
+
+/* app.delete('/api/record/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  record = record.filter(record => record.id !== id);
   res.status(204).end();
 });
 
-app.post('/api/persons',(req, res) => {
+app.post('/api/record',(req, res) => {
   const record = req.body;
   console.log(record);
 
   switch(true) {
-    case persons.map(record => 
+    case record.map(record => 
       record.name.toLowerCase()).includes(record.name.toLowerCase()):
       res.status(400).send({error: 'name must be unique'})
       break;
-    case (persons.map(record => 
+    case (record.map(record => 
       record.number).includes(record.number)):
       res.status(400).send({ error: 'number must be unique'})
       break;
     default:
-      let id = Math.max(...persons.map(record => parseInt(record.id))) + 1;
-      persons = persons.concat({id, ...record})
+      let id = Math.max(...record.map(record => parseInt(record.id))) + 1;
+      record = record.concat({id, ...record})
       res.json(record);
   }
-})
+}) */
 
 app.use(unknownEndpoint);
 

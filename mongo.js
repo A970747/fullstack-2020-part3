@@ -1,47 +1,30 @@
 const mongoose = require('mongoose');
+const url = process.env.MONGODB_URI
 
-if (process.argv.length < 3) {
-  console.log('Please provide the password as an argument: node mongo.js <password>');
-  process.exit(1);
-}
+console.log('connecting to', url);
 
-const password = process.argv[2];
-
-const url = 
-  `mongodb+srv://fullstack:${password}@cluster0.8ob9a.mongodb.net/note-app?retryWrites=true&w=majority`
-
-  mongoose.connect(url, 
-    { 
-      useNewUrlParser: true, 
-      useUnifiedTopology: true,
-      useFindAndModify: false, 
-      useCreateIndex: true 
-    }
-  ).then(() => console.log('connected successfully'))
-  .catch(() => console.log('no dice big momma'))
-
-  const noteSchema = new mongoose.Schema({
-    content: String,
-    date: Date,
-    important: Boolean,
+mongoose.connect(url, 
+  { 
+    useNewUrlParser: true, 
+    useUnifiedTopology: true,
+    useFindAndModify: false, 
+    useCreateIndex: true 
   })
-  
-  const Note = mongoose.model('Note', noteSchema)
-  
-  const note = new Note({
-    content: 'HTML is Easy',
-    date: new Date(),
-    important: true,
-  })
-  
-  Note.find({}).then(result => {
-    result.forEach(note => {
-      console.log(note);
-    })
-    mongoose.connection.close();
-  })
+    .then(() => console.log('Connected successfully'))
+    .catch(error => console.log('Error connecting to MongoDB', error.message))
 
-/*   note.save().then(result => {
-    console.log('note saved!')
-    mongoose.connection.close()
-  }) */
+const recordSchema = new mongoose.Schema({
+  _id: Number,
+  name: String,
+  number: String
+})
+
+recordSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString();
+    delete returnedObject._id;
+    delete returnedObject.__v;
+  }
+})
+
+module.exports = mongoose.model('Record', recordSchema)
