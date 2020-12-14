@@ -1,6 +1,5 @@
 require('dotenv').config();
 const Record = require('./models/record');
-
 const { req, res, response} = require('express');
 const express = require('express');
 const morgan = require('morgan');
@@ -25,21 +24,13 @@ app.get('/api',(req,res) => {
   res.send('Hey! This is the root. Welcome.');
 })
 
-app.get('/api/record',(req,res) => {
-  const body = req.body;
-
-  if(!body.name || !body.number) {
-    return res.status(400).json({Error: 'Name or Number missing'});
-  }
-
-  const record = new Record({
-    name: body.name,
-    number: body.number
-  })
-
-  record.save().then( savedRecord =>{
-    res.json(savedRecord);
-  })
+app.get('/api/records',(req,res) => {
+  Record.find({})
+    .then(records => {
+      console.log('phonebook:', records);
+      res.json(records);
+    })
+    .catch(error => console.log(error.message));
 })
 
 app.get('/api/record/:id',(req,res) => {
@@ -54,27 +45,27 @@ app.get('/api/record/:id',(req,res) => {
   const id = parseInt(req.params.id);
   record = record.filter(record => record.id !== id);
   res.status(204).end();
-});
+}); */
 
 app.post('/api/record',(req, res) => {
-  const record = req.body;
-  console.log(record);
+  const body = req.body;
 
-  switch(true) {
-    case record.map(record => 
-      record.name.toLowerCase()).includes(record.name.toLowerCase()):
-      res.status(400).send({error: 'name must be unique'})
-      break;
-    case (record.map(record => 
-      record.number).includes(record.number)):
-      res.status(400).send({ error: 'number must be unique'})
-      break;
-    default:
-      let id = Math.max(...record.map(record => parseInt(record.id))) + 1;
-      record = record.concat({id, ...record})
-      res.json(record);
+  if(!body.name || !body.number) {
+    return res.status(400).json({Error: 'Name or Number missing'});
   }
-}) */
+
+  const record = new Record({
+    _id: body.id,
+    name: body.name,
+    number: body.number
+  })
+
+  record.save()
+    .then( savedRecord =>{
+      res.json(savedRecord);
+    })
+    .catch( error => console.log(error.message))
+})
 
 app.use(unknownEndpoint);
 
