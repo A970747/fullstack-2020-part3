@@ -40,12 +40,6 @@ app.get('/api/records/:id',(req,res) => {
   })
 })
 
-/* app.delete('/api/record/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  record = record.filter(record => record.id !== id);
-  res.status(204).end();
-}); */
-
 app.post('/api/records',(req, res) => {
   const body = req.body;
 
@@ -71,3 +65,9 @@ app.use(unknownEndpoint);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
+
+/* app.delete('/api/record/:id', (req, res) => {
+  const id = parseInt(req.params.id);
+  record = record.filter(record => record.id !== id);
+  res.status(204).end();
+}); */
