@@ -7,7 +7,6 @@ const cors = require('cors');
 const PORT = process.env.PORT
 const app = express();
 
-
 app.use(express.json());
 app.use(cors());
 
@@ -33,7 +32,7 @@ app.get('/api/records',(req,res) => {
     .catch(error => console.log(error.message));
 })
 
-app.get('/api/record/:id',(req,res) => {
+app.get('/api/records/:id',(req,res) => {
   const id = parseInt(req.params.id);
 
   Record.findById(id).then( record => {
@@ -47,7 +46,7 @@ app.get('/api/record/:id',(req,res) => {
   res.status(204).end();
 }); */
 
-app.post('/api/record',(req, res) => {
+app.post('/api/records',(req, res) => {
   const body = req.body;
 
   if(!body.name || !body.number) {
