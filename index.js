@@ -37,6 +37,7 @@ app.get('/api/records',(req,res, next) => {
 })
 
 app.post('/api/records',(req, res, next) => {
+  console.log('in here');
   const body = req.body;
 
   if(!body.name || !body.number) {
@@ -51,7 +52,7 @@ app.post('/api/records',(req, res, next) => {
 
   record.save()
     .then(savedRecord => res.json(savedRecord))
-    .catch(error => next(error));
+    .catch(error => {console.log('error', error); next(error)});
 })
 
 app.get('/api/records/:id',(req,res, next) => {
@@ -86,6 +87,7 @@ app.use(unknownEndpoint);
 
 const errorHandler = (error, req, res, next) => {
   console.error(error.message);
+  console.log(error);
   
   if(error.name=== 'CastError') {
     return res.status(400).send({Error: 'Malformatted ID'});
