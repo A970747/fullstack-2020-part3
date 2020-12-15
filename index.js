@@ -20,41 +20,11 @@ app.get('/api',(req,res) => {
 })
 
 app.get('/api/records',(req,res) => {
-  console.log(Record.find({}));
   Record.find({})
     .then(records => {
       console.log('phonebook:', records);
       res.json(records);
     })
-    .catch(error => next(error));
-})
-
-app.get('/api/records/:id',(req,res) => {
-  Record.findById(req.params.id)
-    .then( record => {
-      (record)
-        ? res.json(record)
-        : res.status(404).end();
-    })
-    .catch( error => next(error))
-})
-
-app.delete('/api/records/:id', (req, res, next) => {
-  Record.findByIdAndRemove(req.params.id)
-    .then( result => res.status(204).end())
-    .catch( error => next(error));
-});
-
-app.put('/api/records/:id', (req, res, next) => {
-  const body = req.body;
-
-  const record = {
-    name: body.name,
-    number: body.number
-  }
-
-  Record.findByIdAndUpdate(req.params.id, record, {new: true})
-    .then( updatedRecord => res.json(updatedRecord))
     .catch(error => next(error));
 })
 
@@ -69,16 +39,38 @@ app.post('/api/records',(req, res) => {
     _id: body.id,
     name: body.name,
     number: body.number
-  })
-
-  //Record.find({name: body.name})
+  });
 
   record.save()
-    .then( savedRecord =>{
-      res.json(savedRecord);
-    })
-    .catch( error => console.log(error.message))
+    .then(savedRecord => res.json(savedRecord))
+    .catch(error => next(error));
 })
+
+app.get('/api/records/:id',(req,res) => {
+  Record.findById(req.params.id)
+    .then( record => {
+      (record)
+        ? res.json(record)
+        : res.status(404).end();
+    })
+    .catch( error => next(error))
+})
+
+app.put('/api/records/:id', (req, res, next) => {
+  const body = req.body;
+
+  const record = {...body}
+
+  Record.findByIdAndUpdate(req.params.id, record, {new: true})
+    .then( updatedRecord => res.json(updatedRecord))
+    .catch(error => next(error));
+})
+
+app.delete('/api/records/:id', (req, res, next) => {
+  Record.findByIdAndRemove(req.params.id)
+    .then( result => res.status(204).end())
+    .catch( error => next(error));
+});
 
 const unknownEndpoint = (req,res) => {
   res.status(404).send({error: 'unknown endpoint'})
