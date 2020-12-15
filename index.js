@@ -19,12 +19,20 @@ app.get('/api',(req,res) => {
   res.send('Hey! This is the root. Welcome.');
 })
 
+app.get('/info',(req,res) => {
+  Record.find({})
+    .then(records => 
+        res.send(
+          `<p>This phonebook has info for ${records.length} people.</p>
+          <p>${new Date()}</p>`
+          )
+        )
+    .catch(error => next(error));
+})
+
 app.get('/api/records',(req,res) => {
   Record.find({})
-    .then(records => {
-      console.log('phonebook:', records);
-      res.json(records);
-    })
+    .then(records => res.json(records))
     .catch(error => next(error));
 })
 
@@ -57,9 +65,7 @@ app.get('/api/records/:id',(req,res) => {
 })
 
 app.put('/api/records/:id', (req, res, next) => {
-  const body = req.body;
-
-  const record = {...body}
+  const record = {...req.body}
 
   Record.findByIdAndUpdate(req.params.id, record, {new: true})
     .then( updatedRecord => res.json(updatedRecord))
