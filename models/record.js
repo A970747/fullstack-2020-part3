@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
 const url = process.env.MONGODB_URI
 
 console.log('connecting to', url);
@@ -15,9 +16,22 @@ mongoose.connect(url,
 
 const recordSchema = new mongoose.Schema({
   _id: Number,
-  name: String,
-  number: String
+  name: {
+    type: String,
+    minlength: 3,
+    unique: true,
+    required: [true, 'Name required']
+  },
+  number: {
+    type: String,
+    min: [8, 'Need at least 8 digits'],
+    unique: true,
+    max: [10, 'Current max length is 10 digits'],
+    required: [true, 'Number required']
+  }
 })
+
+recordSchema.plugin(uniqueValidator);
 
 recordSchema.set('toJSON', {
   transform: (document, returnedObject) => {

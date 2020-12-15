@@ -2,7 +2,7 @@ POST http://localhost:3001/api/records
 Content-Type: application/json
 
 {
-  "id": 510,
-  "name": "Catherine Blagowitcsz",
-  "number": "111-1111111"
+  "id": 550,
+  "name": "KB",
+  "number": "111-2222222"
 }

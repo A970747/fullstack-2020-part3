@@ -1,6 +1,6 @@
 require('dotenv').config();
 const Record = require('./models/record');
-const { req, res, response} = require('express');
+const { req, res} = require('express');
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
@@ -19,7 +19,7 @@ app.get('/api',(req,res) => {
   res.send('Hey! This is the root. Welcome.');
 })
 
-app.get('/info',(req,res) => {
+app.get('/info',(req,res, next) => {
   Record.find({})
     .then(records => 
         res.send(
@@ -30,13 +30,13 @@ app.get('/info',(req,res) => {
     .catch(error => next(error));
 })
 
-app.get('/api/records',(req,res) => {
+app.get('/api/records',(req,res, next) => {
   Record.find({})
     .then(records => res.json(records))
     .catch(error => next(error));
 })
 
-app.post('/api/records',(req, res) => {
+app.post('/api/records',(req, res, next) => {
   const body = req.body;
 
   if(!body.name || !body.number) {
@@ -54,7 +54,7 @@ app.post('/api/records',(req, res) => {
     .catch(error => next(error));
 })
 
-app.get('/api/records/:id',(req,res) => {
+app.get('/api/records/:id',(req,res, next) => {
   Record.findById(req.params.id)
     .then( record => {
       (record)
@@ -89,6 +89,8 @@ const errorHandler = (error, req, res, next) => {
   
   if(error.name=== 'CastError') {
     return res.status(400).send({Error: 'Malformatted ID'});
+  } else if(error.name=== 'ValidationError') {
+    return res.status(400).json({Error: error.message});
   }
 
   next(error);
