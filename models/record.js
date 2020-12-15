@@ -24,9 +24,8 @@ const recordSchema = new mongoose.Schema({
   },
   number: {
     type: String,
-    min: [8, 'Need at least 8 digits'],
+    minlength: 8,
     unique: true,
-    max: [10, 'Current max length is 10 digits'],
     required: [true, 'Number required']
   }
 })

@@ -40,10 +40,6 @@ app.post('/api/records',(req, res, next) => {
   console.log('in here');
   const body = req.body;
 
-  if(!body.name || !body.number) {
-    return res.status(400).json({Error: 'Name or Number missing'});
-  }
-
   const record = new Record({
     _id: body.id,
     name: body.name,
@@ -87,7 +83,6 @@ app.use(unknownEndpoint);
 
 const errorHandler = (error, req, res, next) => {
   console.error(error.message);
-  console.log(error);
   
   if(error.name=== 'CastError') {
     return res.status(400).send({Error: 'Malformatted ID'});
