@@ -15,29 +15,47 @@ morgan.token('postBody', (req, res) => JSON.stringify(req.body))
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :postBody'));
 app.use(express.static('build'));
 
-const unknownEndpoint = (req,res) => {
-  res.status(404).send({error: 'unknown endpoint'})
-}
-
 app.get('/api',(req,res) => {
   res.send('Hey! This is the root. Welcome.');
 })
 
 app.get('/api/records',(req,res) => {
+  console.log(Record.find({}));
   Record.find({})
     .then(records => {
       console.log('phonebook:', records);
       res.json(records);
     })
-    .catch(error => console.log(error.message));
+    .catch(error => next(error));
 })
 
 app.get('/api/records/:id',(req,res) => {
-  const id = parseInt(req.params.id);
+  Record.findById(req.params.id)
+    .then( record => {
+      (record)
+        ? res.json(record)
+        : res.status(404).end();
+    })
+    .catch( error => next(error))
+})
 
-  Record.findById(id).then( record => {
-    res.json(record);
-  })
+app.delete('/api/records/:id', (req, res, next) => {
+  Record.findByIdAndRemove(req.params.id)
+    .then( result => res.status(204).end())
+    .catch( error => next(error));
+});
+
+app.put('/api/records/:id', (req, res, next) => {
+  const body = req.body;
+
+  const record = {
+    name: body.name,
+    number: body.number
+  }
+
+  Record.findByIdAndUpdate(req.params.id, record, {new: true})
+    .then( updatedRecord => res.json(updatedRecord))
+    .catch(error => next(error));
 })
 
 app.post('/api/records',(req, res) => {
@@ -53,6 +71,8 @@ app.post('/api/records',(req, res) => {
     number: body.number
   })
 
+  //Record.find({name: body.name})
+
   record.save()
     .then( savedRecord =>{
       res.json(savedRecord);
@@ -60,14 +80,24 @@ app.post('/api/records',(req, res) => {
     .catch( error => console.log(error.message))
 })
 
+const unknownEndpoint = (req,res) => {
+  res.status(404).send({error: 'unknown endpoint'})
+}
+
 app.use(unknownEndpoint);
+
+const errorHandler = (error, req, res, next) => {
+  console.error(error.message);
+  
+  if(error.name=== 'CastError') {
+    return res.status(400).send({Error: 'Malformatted ID'});
+  }
+
+  next(error);
+}
+
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
-
-/* app.delete('/api/record/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  record = record.filter(record => record.id !== id);
-  res.status(204).end();
-}); */
