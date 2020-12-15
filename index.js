@@ -37,7 +37,6 @@ app.get('/api/records',(req,res, next) => {
 })
 
 app.post('/api/records',(req, res, next) => {
-  console.log('in here');
   const body = req.body;
 
   const record = new Record({
@@ -48,7 +47,7 @@ app.post('/api/records',(req, res, next) => {
 
   record.save()
     .then(savedRecord => res.json(savedRecord))
-    .catch(error => {console.log('error', error); next(error)});
+    .catch(error => next(error));
 })
 
 app.get('/api/records/:id',(req,res, next) => {
