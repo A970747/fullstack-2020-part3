@@ -1,99 +1,98 @@
 require('dotenv').config();
-const Record = require('./models/record');
-const { req, res} = require('express');
 const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
-const PORT = process.env.PORT
+const Record = require('./models/record');
+
+const { PORT } = process.env;
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-morgan.token('postBody', (req, res) => JSON.stringify(req.body))
+morgan.token('postBody', (req) => JSON.stringify(req.body));
 
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms - :postBody'));
 app.use(express.static('build'));
 
-app.get('/api',(req,res) => {
+app.get('/api', (_, res) => {
   res.send('Hey! This is the root. Welcome.');
-})
+});
 
-app.get('/info',(req,res, next) => {
+app.get('/info', (_, res, next) => {
   Record.find({})
-    .then(records => 
-        res.send(
-          `<p>This phonebook has info for ${records.length} people.</p>
-          <p>${new Date()}</p>`
-          )
-        )
-    .catch(error => next(error));
-})
+    .then((records) => res.send(
+      `<p>This phonebook has info for ${records.length} people.</p>
+      <p>${new Date()}</p>`,
+    ))
+    .catch((error) => next(error));
+});
 
-app.get('/api/records',(req,res, next) => {
+app.get('/api/records', (_, res, next) => {
   Record.find({})
-    .then(records => res.json(records))
-    .catch(error => next(error));
-})
+    .then((records) => res.json(records))
+    .catch((error) => next(error));
+});
 
-app.post('/api/records',(req, res, next) => {
-  const body = req.body;
+app.post('/api/records', (req, res, next) => {
+  const { body } = req;
 
   const record = new Record({
     _id: body.id,
     name: body.name,
-    number: body.number
+    number: body.number,
   });
 
   record.save()
-    .then(savedRecord => res.json(savedRecord))
-    .catch(error => next(error));
-})
+    .then((savedRecord) => res.json(savedRecord))
+    .catch((error) => next(error));
+});
 
-app.get('/api/records/:id',(req,res, next) => {
+app.get('/api/records/:id', (req, res, next) => {
   Record.findById(req.params.id)
-    .then( record => {
-      (record)
-        ? res.json(record)
-        : res.status(404).end();
+    .then((record) => {
+      if (record) {
+        res.json(record);
+      } else {
+        res.status(404).end();
+      }
     })
-    .catch( error => next(error))
-})
+    .catch((error) => next(error));
+});
 
 app.put('/api/records/:id', (req, res, next) => {
-  const record = {...req.body}
+  const record = { ...req.body };
 
-  Record.findByIdAndUpdate(req.params.id, record, {new: true})
-    .then( updatedRecord => res.json(updatedRecord))
-    .catch(error => next(error));
-})
+  Record.findByIdAndUpdate(req.params.id, record, { new: true })
+    .then((updatedRecord) => res.json(updatedRecord))
+    .catch((error) => next(error));
+});
 
 app.delete('/api/records/:id', (req, res, next) => {
   Record.findByIdAndRemove(req.params.id)
-    .then( result => res.status(204).end())
-    .catch( error => next(error));
+    .then(() => res.status(204).end())
+    .catch((error) => next(error));
 });
 
-const unknownEndpoint = (req,res) => {
-  res.status(404).send({error: 'unknown endpoint'})
-}
+const unknownEndpoint = (_, res) => {
+  res.status(404).send({ error: 'unknown endpoint' });
+};
 
 app.use(unknownEndpoint);
 
-const errorHandler = (error, req, res, next) => {
-  console.error(error.message);
-  
-  if(error.name=== 'CastError') {
-    return res.status(400).send({Error: 'Malformatted ID'});
-  } else if(error.name=== 'ValidationError') {
-    return res.status(400).json({Error: error.message});
+const errorHandler = (error, _, res, next) => {
+  if (error.name === 'CastError') {
+    return res.status(400).send({ Error: 'Malformatted ID' });
+  }
+  if (error.name === 'ValidationError') {
+    return res.status(400).json({ Error: error.message });
   }
 
   next(error);
-}
+};
 
 app.use(errorHandler);
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+  console.log(`Server running on port ${PORT}`);
+});
